@@ -57,6 +57,7 @@
 #include "../record/record_driver.h"
 #include "../tasks/task_content.h"
 #include "../verbosity.h"
+#include "../command.h"
 
 #define MENU_SOUND_FORMATS "ogg|mod|xm|s3m|mp3|flac|wav"
 
