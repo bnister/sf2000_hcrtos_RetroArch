@@ -363,6 +363,9 @@ const video_driver_t *video_drivers[] = {
 #ifdef HAVE_NETWORK_VIDEO
    &video_network,
 #endif
+#ifdef HAVE_SF2000
+        &video_sf2000,
+#endif
    &video_null,
    NULL,
 };
