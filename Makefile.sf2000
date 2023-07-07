@@ -140,8 +140,8 @@ HAVE_STATIC_AUDIO_FILTERS := 1
 HAVE_STATIC_VIDEO_FILTERS := 1
 
 #HAVE_LANGEXTRA          := 1
-HAVE_WIIUSB_HID          := 1
-HAVE_HID                 := 1
+HAVE_WIIUSB_HID          := 0
+HAVE_HID                 := 0
 HAVE_RARCH_EXEC          := 1
 HAVE_RSOUND              := 0
 HAVE_XMB                 := 0
@@ -167,13 +167,8 @@ INCLUDE += -I./libretro-common/include \
            -Ideps/stb
 CFLAGS += -Wall -std=gnu99 $(MACHDEP) $(PLATCFLAGS) $(INCLUDE)
 
-#audio/drivers/gx_audio.o gfx/drivers/gx_gfx.o gfx/drivers/gx_gfx_vi_encoder.o input/drivers_joypad/gx_joypad.o input/drivers/gx_input.o  memory/wii/mem2_manager.o  input/drivers_hid/wiiusb_hid.o
-OBJ =  $(PLATOBJS) frontend/drivers/platform_gx.o frontend/drivers/platform_wii.o
-OBJ += audio/drivers/audioio.o gfx/drivers/sf2000_gfx.o input/drivers_joypad/sf2000_joypad.o input/drivers/sf2000_input.o
-
-#ifeq ($(EXTERNAL_LIBOGC), 0)
-#   OBJ += wii/libogc/libfat/libfat.o wii/libogc/libfat/fatfile.o wii/libogc/libfat/file_allocation_table.o wii/libogc/libfat/cache.o wii/libogc/libfat/fatdir.o wii/libogc/libfat/partition.o wii/libogc/libfat/directory.o wii/libogc/libfat/filetime.o wii/libogc/libfat/disc.o
-#endif
+OBJ =  $(PLATOBJS)
+OBJ += audio/drivers/sf2000_audio.o gfx/drivers/sf2000_gfx.o input/drivers_joypad/sf2000_joypad.o input/drivers/sf2000_input.o frontend/drivers/platform_sf2000.o
 
 include $(PROJECTOR_DIR)/RetroArch/Makefile.common
 
@@ -251,7 +246,7 @@ else
    CFLAGS += -O3
 endif
 
-CFLAGS += -DSF2000
+CFLAGS += -DSF2000 -DHAVE_REWIND=1
 
 INCLUDE := $(subst -I,-I$(PROJECTOR_DIR)/RetroArch/, $(INCLUDE))
 CSRCS += $(patsubst %.o, $(PROJECTOR_DIR)/RetroArch/%.c, $(OBJ))

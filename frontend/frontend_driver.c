@@ -131,6 +131,9 @@ static frontend_ctx_driver_t *frontend_ctx_drivers[] = {
 #if defined(ORBIS)
    &frontend_ctx_orbis,
 #endif
+#ifdef SF2000
+    &frontend_ctx_sf2000,
+#endif
    &frontend_ctx_null,
    NULL
 };

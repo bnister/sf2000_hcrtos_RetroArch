@@ -686,6 +686,10 @@ void state_manager_event_deinit(
    }
 }
 
+void audio_driver_sample_rewind(int16_t left, int16_t right);
+size_t audio_driver_sample_batch_rewind(
+        const int16_t *data, size_t frames);
+
 /**
  * check_rewind:
  * @pressed              : was rewind key pressed or held?

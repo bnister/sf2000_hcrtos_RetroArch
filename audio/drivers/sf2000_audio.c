@@ -39,8 +39,7 @@ static void *sf2000_audio_init(const char *device, unsigned rate, unsigned laten
 
 static ssize_t sf2000_audio_write(void *data, const void *buf, size_t size)
 {
-   ssize_t ret;
-   return ret;
+   return 0;
 }
 
 static bool sf2000_audio_stop(void *data)

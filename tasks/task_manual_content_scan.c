@@ -29,6 +29,7 @@
 #include <formats/m3u_file.h>
 
 #include "tasks_internal.h"
+#include "../libretro-common/include/queues/message_queue.h"
 
 #include "../msg_hash.h"
 #include "../playlist.h"

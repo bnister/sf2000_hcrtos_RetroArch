@@ -184,6 +184,7 @@
 #include "verbosity.h"
 
 #include "gfx/video_driver.h"
+#include "gfx/gfx_display.h"
 #include "gfx/video_display_server.h"
 #ifdef HAVE_BLUETOOTH
 #include "bluetooth/bluetooth_driver.h"
