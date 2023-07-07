@@ -1313,6 +1313,7 @@ extern video_driver_t video_sixel;
 extern video_driver_t video_network;
 extern video_driver_t video_oga;
 extern video_driver_t video_null;
+extern video_driver_t video_sf2000;
 
 extern const gfx_ctx_driver_t gfx_ctx_osmesa;
 extern const gfx_ctx_driver_t gfx_ctx_sdl_gl;

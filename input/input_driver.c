@@ -281,6 +281,9 @@ input_device_driver_t *joypad_drivers[] = {
 #ifdef EMSCRIPTEN
    &rwebpad_joypad,
 #endif
+#ifdef SF2000
+   &sf2000_joypad,
+#endif
    &null_joypad,
    NULL,
 };
@@ -360,6 +363,9 @@ input_driver_t *input_drivers[] = {
 #endif
 #ifdef DJGPP
    &input_dos,
+#endif
+#ifdef SF2000
+        &input_sf2000,
 #endif
    &input_null,
    NULL,
