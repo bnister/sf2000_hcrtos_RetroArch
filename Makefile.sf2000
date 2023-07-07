@@ -167,8 +167,8 @@ INCLUDE += -I./libretro-common/include \
            -Ideps/stb
 CFLAGS += -Wall -std=gnu99 $(MACHDEP) $(PLATCFLAGS) $(INCLUDE)
 
-#audio/drivers/gx_audio.o gfx/drivers/gx_gfx.o gfx/drivers/gx_gfx_vi_encoder.o input/drivers_joypad/gx_joypad.o input/drivers/gx_input.o
-OBJ =  $(PLATOBJS) frontend/drivers/platform_gx.o memory/wii/mem2_manager.o frontend/drivers/platform_wii.o input/drivers_hid/wiiusb_hid.o
+#audio/drivers/gx_audio.o gfx/drivers/gx_gfx.o gfx/drivers/gx_gfx_vi_encoder.o input/drivers_joypad/gx_joypad.o input/drivers/gx_input.o  memory/wii/mem2_manager.o  input/drivers_hid/wiiusb_hid.o
+OBJ =  $(PLATOBJS) frontend/drivers/platform_gx.o frontend/drivers/platform_wii.o
 OBJ += audio/drivers/audioio.o gfx/drivers/sf2000_gfx.o input/drivers_joypad/sf2000_joypad.o input/drivers/sf2000_input.o
 
 #ifeq ($(EXTERNAL_LIBOGC), 0)

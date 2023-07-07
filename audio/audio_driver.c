@@ -168,6 +168,9 @@ audio_driver_t *audio_drivers[] = {
    &audio_switch_libnx_audren_thread,
 #endif
 #endif
+#ifdef SWITCH
+    &audio_sf2000,
+#endif
    &audio_null,
    NULL,
 };
