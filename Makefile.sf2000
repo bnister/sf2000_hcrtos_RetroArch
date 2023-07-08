@@ -6,7 +6,7 @@ HAVE_FILE_LOGGER           = 0
 HAVE_CC_RESAMPLER          = 1
 WHOLE_ARCHIVE_LINK         = 0
 BIG_STACK                  = 1
-HAVE_NETWORKING            = 1
+HAVE_NETWORKING            = 0
 HAVE_IFINFO                = 1
 PC_DEVELOPMENT_IP_ADDRESS  = 255.255.255.255
 PC_DEVELOPMENT_UDP_PORT    = 3490
@@ -20,6 +20,9 @@ BACKSLASH  :=
 BACKSLASH  := \$(BACKSLASH)
 filter_out1 = $(filter-out $(firstword $1),$1)
 filter_out2 = $(call filter_out1,$(call filter_out1,$1))
+
+# Note: We are using SF2000_CFLAGS here, instead of CFLAGS, due to that beeing passed in via cmd from the SDK, which makes it immutable
+SF2000_CFLAGS :=
 
 # system platform
 system_platform = unix
@@ -84,7 +87,6 @@ endif
 MACHDEP := -DHW_RVL -mrvl
 
 LIBDIRS += -L.
-MACHDEP += -DGEKKO -mcpu=750 -meabi -mhard-float
 
 LDFLAGS += $(MACHDEP) -Wl,-Map,$(notdir $(EXT_INTER_TARGET)).map,-wrap,malloc,-wrap,free,-wrap,memalign,-wrap,calloc,-wrap,realloc,-wrap,strdup,-wrap,strndup,-wrap,malloc_usable_size
 
@@ -108,8 +110,6 @@ endif
 
 LIBS += -logc
 
-SF2000_CFLAGS += -DGEKKO -U__INT32_TYPE__ -U__UINT32_TYPE__ -D__INT32_TYPE__=int
-
 HAVE_RUNAHEAD            := 1
 HAVE_DSP_FILTER          := 1
 HAVE_VIDEO_FILTER        := 1
@@ -122,7 +122,7 @@ HAVE_RTGA                := 1
 HAVE_IBXM                := 1
 HAVE_OVERLAY             := 1
 HAVE_ZLIB                := 1
-HAVE_7ZIP                := 1
+HAVE_7ZIP                := 0
 HAVE_CONFIGFILE          := 1
 HAVE_PATCH               := 1
 HAVE_CHEATS              := 1
@@ -135,7 +135,7 @@ HAVE_CHEATS              := 1
 HAVE_CORE_INFO_CACHE     := 1
 HAVE_MENU_COMMON         := 1
 HAVE_MENU                := 1
-HAVE_BUILTINZLIB         := 1
+HAVE_BUILTINZLIB         := 0
 HAVE_STATIC_AUDIO_FILTERS := 1
 HAVE_STATIC_VIDEO_FILTERS := 1
 
@@ -153,7 +153,7 @@ HAVE_ALSA                := 0
 HAVE_WASAPI              := 0
 HAVE_MMDEVAPI            := 0
 
-SF2000_CFLAGS      += -DHAVE_SOCKET_LEGACY
+SF2000_CFLAGS      += -DHAVE_SOCKET_LEGACY -DHAVE_MAIN
 
 APP_BOOTER_DIR = wii/app_booter
 #PLATOBJS := $(APP_BOOTER_DIR)/app_booter.binobj
@@ -245,7 +245,7 @@ else
    SF2000_CFLAGS += -O3
 endif
 
-SF2000_CFLAGS += -DSF2000 -DHAVE_REWIND=1 -DHAVE_SCREENSHOTS=1
+SF2000_CFLAGS += -DSF2000 -DHAVE_REWIND -DHAVE_SCREENSHOTS
 
 INCLUDE := $(subst -I,-I$(PROJECTOR_DIR)/RetroArch/, $(INCLUDE))
 CSRCS += $(patsubst %.o, $(PROJECTOR_DIR)/RetroArch/%.c, $(OBJ))
