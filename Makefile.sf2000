@@ -65,19 +65,19 @@ GX_PTHREAD_LEGACY ?= 1
 INCLUDE += -I.
 
 #ifeq ($(EXTERNAL_LIBOGC), 1)
-#   CFLAGS   += -DEXTERNAL_LIBOGC
+#   SF2000_CFLAGS   += -DEXTERNAL_LIBOGC
 #   CXXFLAGS += -DEXTERNAL_LIBOGC
 #   LIBDIRS += -L$(DEVKITPRO)/libogc/lib/wii
 #   INCLUDE +=  -I$(DEVKITPRO)/libogc/include
 #else
-#   CFLAGS   += -DINTERNAL_LIBOGC
+#   SF2000_CFLAGS   += -DINTERNAL_LIBOGC
 #   CXXFLAGS += -DINTERNAL_LIBOGC
 #   LIBDIRS += -Lwii/libogc/libs/wii
 #   INCLUDE += -Iwii/libogc/include
 #endif
 
 ifeq ($(GX_PTHREAD_LEGACY), 1)
-   CFLAGS   += -DGX_PTHREAD_LEGACY
+   SF2000_CFLAGS   += -DGX_PTHREAD_LEGACY
    CXXFLAGS += -DGX_PTHREAD_LEGACY
 endif
 
@@ -108,7 +108,7 @@ endif
 
 LIBS += -logc
 
-CFLAGS += -DGEKKO -U__INT32_TYPE__ -U__UINT32_TYPE__ -D__INT32_TYPE__=int
+SF2000_CFLAGS += -DGEKKO -U__INT32_TYPE__ -U__UINT32_TYPE__ -D__INT32_TYPE__=int
 
 HAVE_RUNAHEAD            := 1
 HAVE_DSP_FILTER          := 1
@@ -153,26 +153,26 @@ HAVE_ALSA                := 0
 HAVE_WASAPI              := 0
 HAVE_MMDEVAPI            := 0
 
-CFLAGS      += -DHAVE_SOCKET_LEGACY
+SF2000_CFLAGS      += -DHAVE_SOCKET_LEGACY
 
 APP_BOOTER_DIR = wii/app_booter
 #PLATOBJS := $(APP_BOOTER_DIR)/app_booter.binobj
 
 ifeq ($(USBGECKO), 1)
-   CFLAGS += -DUSBGECKO
+   SF2000_CFLAGS += -DUSBGECKO
 endif
 
 INCLUDE += -I./libretro-common/include \
            -Ideps \
            -Ideps/stb
-CFLAGS += $(PLATCFLAGS) $(INCLUDE)
+SF2000_CFLAGS += $(PLATCFLAGS) $(INCLUDE)
 
 OBJ =  $(PLATOBJS)
 OBJ += audio/drivers/sf2000_audio.o gfx/drivers/sf2000_gfx.o input/drivers_joypad/sf2000_joypad.o input/drivers/sf2000_input.o frontend/drivers/platform_sf2000.o
 
 include $(PROJECTOR_DIR)/RetroArch/Makefile.common
 
-CFLAGS += $(DEFINES)
+SF2000_CFLAGS += $(DEFINES)
 
 
 ifeq ($(WANT_GLSLANG), 1)
@@ -180,72 +180,72 @@ ifeq ($(WANT_GLSLANG), 1)
 endif
 
 ifeq ($(HAVE_LOGGER), 1)
-   CFLAGS      += -DHAVE_LOGGER
-   CFLAGS      += -DPC_DEVELOPMENT_IP_ADDRESS=\"$(PC_DEVELOPMENT_IP_ADDRESS)\" -DPC_DEVELOPMENT_UDP_PORT=$(PC_DEVELOPMENT_UDP_PORT)
+   SF2000_CFLAGS      += -DHAVE_LOGGER
+   SF2000_CFLAGS      += -DPC_DEVELOPMENT_IP_ADDRESS=\"$(PC_DEVELOPMENT_IP_ADDRESS)\" -DPC_DEVELOPMENT_UDP_PORT=$(PC_DEVELOPMENT_UDP_PORT)
 endif
 
 ifeq ($(HAVE_KERNEL_PRX), 1)
-   CFLAGS      += -DHAVE_KERNEL_PRX
+   SF2000_CFLAGS      += -DHAVE_KERNEL_PRX
 endif
 
 ifeq ($(HAVE_WIIUSB_HID), 1)
-   CFLAGS      += -DHAVE_WIIUSB_HID
+   SF2000_CFLAGS      += -DHAVE_WIIUSB_HID
 endif
 
 ifeq ($(BIG_STACK),1)
-   CFLAGS      += -DBIG_STACK
+   SF2000_CFLAGS      += -DBIG_STACK
 endif
 
 ifeq ($(HAVE_FILE_LOGGER), 1)
-   CFLAGS      += -DHAVE_FILE_LOGGER
+   SF2000_CFLAGS      += -DHAVE_FILE_LOGGER
 endif
 
 ifeq ($(HAVE_RARCH_EXEC), 1)
-   CFLAGS      += -DHAVE_RARCH_EXEC
+   SF2000_CFLAGS      += -DHAVE_RARCH_EXEC
 endif
 
 ifeq ($(HAVE_ZLIB), 1)
-   CFLAGS      += -DHAVE_ZLIB
-   CFLAGS      += -I./libretro-common/include/compat/zlib
+   SF2000_CFLAGS      += -DHAVE_ZLIB
+   SF2000_CFLAGS      += -I./libretro-common/include/compat/zlib
 endif
 
 ifeq ($(RARCH_CONSOLE), 1)
-   CFLAGS += -DRARCH_CONSOLE
+   SF2000_CFLAGS += -DRARCH_CONSOLE
 endif
 
 ifeq ($(RARCH_MOBILE), 1)
-   CFLAGS += -DRARCH_MOBILE
+   SF2000_CFLAGS += -DRARCH_MOBILE
 endif
 
-CFLAGS += -std=gnu99 -DHAVE_RGUI -DHAVE_MENU -DHAVE_GRIFFIN=1 -Wno-char-subscripts -DRARCH_INTERNAL
+SF2000_CFLAGS += -std=gnu99 -DHAVE_RGUI -DHAVE_MENU -DHAVE_GRIFFIN=1 -Wno-char-subscripts -DRARCH_INTERNAL
 
 ifeq ($(HAVE_FILTERS_BUILTIN), 1)
-   CFLAGS += -DHAVE_FILTERS_BUILTIN
+   SF2000_CFLAGS += -DHAVE_FILTERS_BUILTIN
 endif
 
 ifeq ($(HAVE_RSOUND), 1)
-   CFLAGS += -DHAVE_RSOUND
+   SF2000_CFLAGS += -DHAVE_RSOUND
 endif
 
 ifeq ($(HAVE_GETOPT_LONG), 1)
-   CFLAGS += -DHAVE_GETOPT_LONG=1
+   SF2000_CFLAGS += -DHAVE_GETOPT_LONG=1
 endif
 
 ifeq ($(HAVE_NETWORK_CMD), 1)
-   CFLAGS += -DHAVE_NETWORK_CMD
+   SF2000_CFLAGS += -DHAVE_NETWORK_CMD
 endif
 
 ifeq ($(HAVE_DYNAMIC), 1)
-   CFLAGS += -DHAVE_DYNAMIC
+   SF2000_CFLAGS += -DHAVE_DYNAMIC
 endif
 
 ifeq ($(DEBUG), 1)
-   CFLAGS += -O0 -g -DDEBUG
+   SF2000_CFLAGS += -O0 -g -DDEBUG
 else
-   CFLAGS += -O3
+   SF2000_CFLAGS += -O3
 endif
 
-CFLAGS += -DSF2000 -DHAVE_REWIND=1 -DHAVE_SCREENSHOTS
+SF2000_CFLAGS += -DSF2000 -DHAVE_REWIND=1 -DHAVE_SCREENSHOTS=1
 
 INCLUDE := $(subst -I,-I$(PROJECTOR_DIR)/RetroArch/, $(INCLUDE))
 CSRCS += $(patsubst %.o, $(PROJECTOR_DIR)/RetroArch/%.c, $(OBJ))
