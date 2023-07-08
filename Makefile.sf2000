@@ -108,7 +108,7 @@ endif
 
 LIBS += -logc
 
-CFLAGS += -DGEKKO -U__INT32_TYPE__ -U __UINT32_TYPE__ -D__INT32_TYPE__=int
+CFLAGS += -DGEKKO -U__INT32_TYPE__ -U__UINT32_TYPE__ -D__INT32_TYPE__=int
 
 HAVE_RUNAHEAD            := 1
 HAVE_DSP_FILTER          := 1
@@ -165,15 +165,14 @@ endif
 INCLUDE += -I./libretro-common/include \
            -Ideps \
            -Ideps/stb
-CFLAGS += -Wall -std=gnu99 $(MACHDEP) $(PLATCFLAGS) $(INCLUDE)
+CFLAGS += $(PLATCFLAGS) $(INCLUDE)
 
 OBJ =  $(PLATOBJS)
 OBJ += audio/drivers/sf2000_audio.o gfx/drivers/sf2000_gfx.o input/drivers_joypad/sf2000_joypad.o input/drivers/sf2000_input.o frontend/drivers/platform_sf2000.o
 
 include $(PROJECTOR_DIR)/RetroArch/Makefile.common
 
-CFLAGS += $(DEFINES) -DPC_DEVELOPMENT_IP_ADDRESS=\"$(PC_DEVELOPMENT_IP_ADDRESS)\" \
-		-DPC_DEVELOPMENT_UDP_PORT=$(PC_DEVELOPMENT_UDP_PORT) \
+CFLAGS += $(DEFINES)
 
 
 ifeq ($(WANT_GLSLANG), 1)
@@ -246,7 +245,7 @@ else
    CFLAGS += -O3
 endif
 
-CFLAGS += -DSF2000 -DHAVE_REWIND=1
+CFLAGS += -DSF2000 -DHAVE_REWIND=1 -DHAVE_SCREENSHOTS
 
 INCLUDE := $(subst -I,-I$(PROJECTOR_DIR)/RetroArch/, $(INCLUDE))
 CSRCS += $(patsubst %.o, $(PROJECTOR_DIR)/RetroArch/%.c, $(OBJ))

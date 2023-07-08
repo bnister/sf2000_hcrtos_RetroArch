@@ -31,6 +31,8 @@
 #include "../verbosity.h"
 #include "../input/input_driver.h"
 #include "../input/input_remapping.h"
+#include "../runloop.h"
+#include "../command.h"
 
 #include "tasks_internal.h"
 #ifdef HAVE_BLISSBOX
