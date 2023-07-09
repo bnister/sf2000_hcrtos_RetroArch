@@ -12,7 +12,6 @@ PC_DEVELOPMENT_IP_ADDRESS  = 255.255.255.255
 PC_DEVELOPMENT_UDP_PORT    = 3490
 RARCH_CONSOLE              = 0
 USBGECKO                   = 0
-HAVE_STATIC_DUMMY = 1
 
 SPACE      :=
 SPACE      := $(SPACE) $(SPACE)
@@ -248,4 +247,4 @@ endif
 SF2000_CFLAGS += -DSF2000 -DHAVE_REWIND -DHAVE_SCREENSHOTS
 
 INCLUDE := $(subst -I,-I$(PROJECTOR_DIR)/RetroArch/, $(INCLUDE))
-CSRCS += $(patsubst %.o, $(PROJECTOR_DIR)/RetroArch/%.c, $(OBJ))
+CSRCS := $(CSRCS) $(patsubst %.o, $(PROJECTOR_DIR)/RetroArch/%.c, $(OBJ))
