@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 
 #ifdef HAVE_CONFIG_H
 #include "../../config.h"
@@ -217,7 +218,28 @@ static void frontend_sf2000_get_env(int *argc, char *argv[],
 #endif
 }
 
+// TODO: need to implement it for our platform (?)
+// there is an implementation for this for wii - wii/libogc/libogc/exception.c
+// something to do with auto restart after exception maybe
 extern void __exception_setreload(int t);
+
+/* Fake sysconf for page size and processor count */
+// copied from wiiu/system/missing_libc_functions.c
+// TODO: is it the right place for this function?
+long sysconf(int name) {
+   switch (name) {
+      case _SC_PAGESIZE:
+      //case _SC_PAGE_SIZE:
+         return 128 * 1024;			// TODO: what is it used for?
+      case _SC_NPROCESSORS_CONF:
+      case _SC_NPROCESSORS_ONLN:
+         return 1;
+      default:
+         errno = EINVAL;
+         return -1;
+   }
+}
+
 
 static void frontend_sf2000_init(void *data)
 {
@@ -246,7 +268,8 @@ static void frontend_sf2000_init(void *data)
 #endif
 
 #ifndef DEBUG
-   __exception_setreload(8);
+	// TODO: comment this out for now
+	//__exception_setreload(8);
 #endif
 }
 
