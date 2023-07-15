@@ -4845,7 +4845,11 @@ int rarch_main(int argc, char *argv[], void *data)
    }
 
    ui_companion_driver_init_first();
-#if !defined(HAVE_MAIN) || defined(HAVE_QT)
+
+// TODO: "defined(SF2000)" was added to the #if. fix this.
+// either don't define HAVE_MAIN in Makefile.sf2000 and solve the duplicate main() issue
+// or do have HAVE_MAIN defined, but then copy this loop to our main()
+#if !defined(HAVE_MAIN) || defined(HAVE_QT) || defined(SF2000)
    for (;;)
    {
       int ret;

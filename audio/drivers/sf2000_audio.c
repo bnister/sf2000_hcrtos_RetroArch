@@ -28,57 +28,101 @@
 #include "../audio_driver.h"
 #include "../../verbosity.h"
 
+#include "logx.h"
+
 #define DEFAULT_DEV "/dev/audio"
+
+#define AUDIO_BUFFER_SIZE	128 * 1024
+#define AUDIO_CHANNELS		2
+#define AUDIO_BITS			16
+
+typedef struct sf2000_audio
+{
+	bool nonblock;
+	bool running;
+} sf2000_audio_t;
+
 
 static void *sf2000_audio_init(const char *device, unsigned rate, unsigned latency,
       unsigned block_frames,
       unsigned *new_out_rate)
 {
-   return NULL;
+	LOGX("device=%s rate=%u latency=%u block_frames=%u\n", device ? device : "Null", rate, latency, block_frames);
+
+	sf2000_audio_t *ctx = (sf2000_audio_t*)calloc(1, sizeof(sf2000_audio_t));
+
+	if (!ctx)
+		return NULL;
+
+	return ctx;
 }
 
 static ssize_t sf2000_audio_write(void *data, const void *buf, size_t size)
 {
-   return 0;
+	return size;
 }
 
 static bool sf2000_audio_stop(void *data)
 {
-   return false;
+	sf2000_audio_t* ctx = (sf2000_audio_t*)data;
+	if (!ctx)
+		return false;
+
+	ctx->running = false;
+	return true;
 }
 
 static bool sf2000_audio_start(void *data, bool is_shutdown)
 {
-   return false;
+	sf2000_audio_t* ctx = (sf2000_audio_t*)data;
+	if (!ctx)
+		return false;
+
+	ctx->running = true;
+	return true;
 }
 
 static bool sf2000_audio_alive(void *data)
 {
-    return false;
+	sf2000_audio_t* ctx = (sf2000_audio_t*)data;
+	if (!ctx)
+		return false;
+
+	return ctx->running;
 }
 
 static void sf2000_audio_set_nonblock_state(void *data, bool state)
 {
+	sf2000_audio_t* ctx = (sf2000_audio_t*)data;
+	if (!ctx)
+		return;
+
+	ctx->nonblock = state;
 }
 
 static void sf2000_audio_free(void *data)
 {
+	sf2000_audio_t* ctx = (sf2000_audio_t*)data;
+	if (!ctx)
+		return;
+
+	free(ctx);
 }
 
 static size_t sf2000_audio_buffer_size(void *data)
 {
-   return 0;
+	return AUDIO_BUFFER_SIZE;
 }
 
 static size_t sf2000_audio_write_avail(void *data)
 {
-   return sf2000_audio_buffer_size(data);
+	return sf2000_audio_buffer_size(data);
 }
 
 static bool sf2000_audio_use_float(void *data)
 {
-   (void)data;
-   return false;
+	(void)data;
+	return false;
 }
 
 audio_driver_t audio_sf2000 = {

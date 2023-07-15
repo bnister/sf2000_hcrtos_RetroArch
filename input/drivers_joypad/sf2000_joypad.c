@@ -32,6 +32,9 @@
 #include "../../verbosity.h"
 #include "../../tasks/tasks_internal.h"
 
+#include "logx.h"
+#define LOG_TAG "[SF2000][Joypad]"
+
 #define NUM_BUTTONS 32
 #define NUM_AXES 32
 
@@ -44,34 +47,15 @@ struct sf2000_joypad
    char *ident;
 };
 
-/* TODO/FIXME - static globals */
-static struct sf2000_joypad sf2000_pads[MAX_USERS];
-static int sf2000_epoll                              = 0;
-static int sf2000_inotify                            = 0;
-static bool sf2000_hotplug                           = false;
-
-static void sf2000_poll_pad(struct sf2000_joypad *pad)
-{
-}
-
-static bool sf2000_joypad_init_pad(const char *path,
-      struct sf2000_joypad *pad)
-{
-   return false;
-}
-
 static const char *sf2000_joypad_name(unsigned pad)
 {
-    return NULL;
-}
-
-static void sf2000_joypad_poll(void)
-{
+	return "SF2000 Controller";
 }
 
 static void *sf2000_joypad_init(void *data)
 {
-   return (void*)-1;
+	RARCH_LOG(LOG_TAG " Init\n");
+	return (void*)-1;
 }
 
 static void sf2000_joypad_destroy(void)
@@ -80,11 +64,13 @@ static void sf2000_joypad_destroy(void)
 
 static int32_t sf2000_joypad_button(unsigned port, uint16_t joykey)
 {
-   return 0;
+	LOGX("port=%u, joykey=%u\n", port, joykey);
+	return 0;
 }
 
 static void sf2000_joypad_get_buttons(unsigned port, input_bits_t *state)
 {
+	LOGX("port=%u\n", port);
 }
 
 static int16_t sf2000_joypad_axis_state(
@@ -99,17 +85,25 @@ static int16_t sf2000_joypad_axis(unsigned port, uint32_t joyaxis)
    return 0;
 }
 
+static void sf2000_joypad_poll(void)
+{
+	//LOGX("poll\n");
+}
+
 static int16_t sf2000_joypad_state(
       rarch_joypad_info_t *joypad_info,
       const struct retro_keybind *binds,
       unsigned port)
 {
-   return 0;
+	//LOGX("port=%u\n", port);
+	return 0;
 }
 
 static bool sf2000_joypad_query_pad(unsigned pad)
 {
-   return pad < MAX_USERS && sf2000_pads[pad].fd >= 0;
+	LOGX("pad=%u\n", pad);
+   //return pad < MAX_USERS && sf2000_pads[pad].fd >= 0;
+	return false;
 }
 
 input_device_driver_t sf2000_joypad = {

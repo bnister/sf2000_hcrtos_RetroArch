@@ -107,6 +107,7 @@ enum video_driver_enum
    VIDEO_VGA,
    VIDEO_FPGA,
    VIDEO_RSX,
+   VIDEO_SF2000,
    VIDEO_NULL
 };
 
@@ -140,6 +141,7 @@ enum audio_driver_enum
    AUDIO_PS2,
    AUDIO_CTR,
    AUDIO_SWITCH,
+   AUDIO_SF2000,
    AUDIO_NULL
 };
 
@@ -187,6 +189,7 @@ enum input_driver_enum
    INPUT_RWEBINPUT,
    INPUT_DOS,
    INPUT_WINRAW,
+   INPUT_SF2000,
    INPUT_NULL
 };
 
@@ -213,6 +216,7 @@ enum joypad_driver_enum
    JOYPAD_QNX,
    JOYPAD_RWEBPAD,
    JOYPAD_MFI,
+   JOYPAD_SF2000,
    JOYPAD_NULL
 };
 
@@ -475,6 +479,8 @@ static const enum video_driver_enum VIDEO_DEFAULT_DRIVER = VIDEO_FPGA;
 static const enum video_driver_enum VIDEO_DEFAULT_DRIVER = VIDEO_EXT;
 #elif defined(__PSL1GHT__)
 static const enum video_driver_enum VIDEO_DEFAULT_DRIVER = VIDEO_RSX;
+#elif defined(SF2000)
+static const enum video_driver_enum VIDEO_DEFAULT_DRIVER = VIDEO_SF2000;
 #else
 static const enum video_driver_enum VIDEO_DEFAULT_DRIVER = VIDEO_NULL;
 #endif
@@ -539,6 +545,8 @@ static const enum audio_driver_enum AUDIO_DEFAULT_DRIVER = AUDIO_RSOUND;
 static const enum audio_driver_enum AUDIO_DEFAULT_DRIVER = AUDIO_ROAR;
 #elif defined(HAVE_DYLIB) && !defined(ANDROID)
 static const enum audio_driver_enum AUDIO_DEFAULT_DRIVER = AUDIO_EXT;
+#elif defined(SF2000)
+static const enum audio_driver_enum AUDIO_DEFAULT_DRIVER = AUDIO_SF2000;
 #else
 static const enum audio_driver_enum AUDIO_DEFAULT_DRIVER = AUDIO_NULL;
 #endif
@@ -638,6 +646,8 @@ static const enum input_driver_enum INPUT_DEFAULT_DRIVER = INPUT_SDL;
 static const enum input_driver_enum INPUT_DEFAULT_DRIVER = INPUT_SDL2;
 #elif defined(DJGPP)
 static const enum input_driver_enum INPUT_DEFAULT_DRIVER = INPUT_DOS;
+#elif defined(SF2000)
+static const enum input_driver_enum INPUT_DEFAULT_DRIVER = INPUT_SF2000;
 #else
 static const enum input_driver_enum INPUT_DEFAULT_DRIVER = INPUT_NULL;
 #endif
@@ -688,6 +698,8 @@ static const enum joypad_driver_enum JOYPAD_DEFAULT_DRIVER = JOYPAD_HID;
 static const enum joypad_driver_enum JOYPAD_DEFAULT_DRIVER = JOYPAD_QNX;
 #elif defined(EMSCRIPTEN)
 static const enum joypad_driver_enum JOYPAD_DEFAULT_DRIVER = JOYPAD_RWEBPAD;
+#elif defined(SF2000)
+static const enum joypad_driver_enum JOYPAD_DEFAULT_DRIVER = JOYPAD_SF2000;
 #else
 static const enum joypad_driver_enum JOYPAD_DEFAULT_DRIVER = JOYPAD_NULL;
 #endif
@@ -938,6 +950,8 @@ const char *config_get_default_audio(void)
          return "rwebaudio";
       case AUDIO_JACK:
          return "jack";
+      case AUDIO_SF2000:
+         return "sf2000";
       case AUDIO_NULL:
          break;
    }
@@ -1102,6 +1116,8 @@ const char *config_get_default_video(void)
          return "fpga";
       case VIDEO_RSX:
          return "rsx";
+      case VIDEO_SF2000:
+         return "sf2000";
       case VIDEO_NULL:
          break;
    }
@@ -1176,6 +1192,8 @@ const char *config_get_default_input(void)
           return "rwebinput";
       case INPUT_DOS:
          return "dos";
+      case INPUT_SF2000:
+         return "sf2000";
       case INPUT_NULL:
           break;
    }
@@ -1246,6 +1264,8 @@ const char *config_get_default_joypad(void)
          return "dos";
       case JOYPAD_MFI:
          return "mfi";
+      case JOYPAD_SF2000:
+         return "sf2000";
       case JOYPAD_NULL:
          break;
    }

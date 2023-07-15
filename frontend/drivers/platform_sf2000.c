@@ -57,6 +57,13 @@
 #include <debug.h>
 #endif
 
+#include "gfx/video_driver.h"
+
+// TODO: get the mounted sdcard directory at runtime
+#define SD_PREFIX "/media/mmcblk0p2"
+
+#define LOG_TAG "[SF2000][Frontend]"
+
 #if defined(HW_RVL) && ! defined(IS_SALAMANDER)
 static enum frontend_fork sf2000_fork_mode = FRONTEND_FORK_NONE;
 #endif
@@ -65,9 +72,18 @@ static enum frontend_fork sf2000_fork_mode = FRONTEND_FORK_NONE;
 extern char sf2000_rom_path[PATH_MAX_LENGTH];
 #endif
 
+
 static void frontend_sf2000_get_env(int *argc, char *argv[],
       void *args, void *params_data)
 {
+	// TODO: research how these params are passed. do we need them?
+	// maybe is has something to do with how salamander works?
+	// for now they always zero and null
+	if (*argc >= 0 && argv)
+		for (int i=0; i<*argc; i++)
+			RARCH_LOG(LOG_TAG " get_env - argv[%d]=%s\n", i, argv[i]);
+
+
    char *slash;
 #ifndef IS_SALAMANDER
    struct rarch_main_wrap *params = (struct rarch_main_wrap*)params_data;
@@ -83,6 +99,9 @@ static void frontend_sf2000_get_env(int *argc, char *argv[],
 #ifndef IS_SALAMANDER
 #ifdef HAVE_LOGGER
    logger_init();
+// TODO: is it necessary to do it here. maybe it should be in main() or set by configuration
+//#elif defined(HAVE_FILE_LOGGER)
+//   retro_main_log_file_init("/retroarch-log.txt");
 #endif
 
    /* This situation can happen on some loaders so we really need some fake
@@ -152,44 +171,48 @@ static void frontend_sf2000_get_env(int *argc, char *argv[],
       *sf2000_rom_path = '\0';
 #endif
 
-   slash = strrchr(g_defaults.dirs[DEFAULT_DIR_CORE], '/');
-   if (slash)
-      *slash = '\0';
-   strlcpy(g_defaults.dirs[DEFAULT_DIR_PORT],
-      g_defaults.dirs[DEFAULT_DIR_CORE],
-      sizeof(g_defaults.dirs[DEFAULT_DIR_PORT]));
-   slash = strchr(g_defaults.dirs[DEFAULT_DIR_PORT], '/');
-   if (slash)
-      *slash = '\0';
+
+	// TODO: deside which dirs should be initialize here
+	// and where they should reside on the sdcard
+
    fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_PORT],
-      g_defaults.dirs[DEFAULT_DIR_PORT], "retroarch",
+      SD_PREFIX, "retroarch",
       sizeof(g_defaults.dirs[DEFAULT_DIR_PORT]));
+
+   fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_CORE],
+      g_defaults.dirs[DEFAULT_DIR_PORT], "cores",
+      sizeof(g_defaults.dirs[DEFAULT_DIR_CORE]));
 
    /* System paths */
    fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_CORE_INFO],
-      g_defaults.dirs[DEFAULT_DIR_CORE], "info",
+      g_defaults.dirs[DEFAULT_DIR_PORT], "info",
       sizeof(g_defaults.dirs[DEFAULT_DIR_CORE_INFO]));
    fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_AUTOCONFIG],
-      g_defaults.dirs[DEFAULT_DIR_CORE], "autoconfig",
+      g_defaults.dirs[DEFAULT_DIR_PORT], "autoconfig",
       sizeof(g_defaults.dirs[DEFAULT_DIR_AUTOCONFIG]));
    fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_OVERLAY],
-      g_defaults.dirs[DEFAULT_DIR_CORE], "overlays",
+      g_defaults.dirs[DEFAULT_DIR_PORT], "overlays",
       sizeof(g_defaults.dirs[DEFAULT_DIR_OVERLAY]));
    fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_VIDEO_FILTER],
-      g_defaults.dirs[DEFAULT_DIR_CORE], "filters/video",
+      g_defaults.dirs[DEFAULT_DIR_PORT], "filters/video",
       sizeof(g_defaults.dirs[DEFAULT_DIR_VIDEO_FILTER]));
    fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_AUDIO_FILTER],
-      g_defaults.dirs[DEFAULT_DIR_CORE], "filters/audio",
+      g_defaults.dirs[DEFAULT_DIR_PORT], "filters/audio",
       sizeof(g_defaults.dirs[DEFAULT_DIR_AUDIO_FILTER]));
    fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_ASSETS],
-      g_defaults.dirs[DEFAULT_DIR_CORE], "assets",
+      g_defaults.dirs[DEFAULT_DIR_PORT], "assets",
       sizeof(g_defaults.dirs[DEFAULT_DIR_ASSETS]));
    fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_CHEATS],
-      g_defaults.dirs[DEFAULT_DIR_CORE], "cheats",
+      g_defaults.dirs[DEFAULT_DIR_PORT], "cheats",
       sizeof(g_defaults.dirs[DEFAULT_DIR_CHEATS]));
+
+	fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_DATABASE], 
+		g_defaults.dirs[DEFAULT_DIR_PORT], "database/rdb", 
+		sizeof(g_defaults.dirs[DEFAULT_DIR_DATABASE]));
+
    /* User paths */
    fill_pathname_join(g_defaults.path_config,
-      g_defaults.dirs[DEFAULT_DIR_CORE], "retroarch.cfg",
+      g_defaults.dirs[DEFAULT_DIR_PORT], "retroarch.cfg",
       sizeof(g_defaults.path_config));
    fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_SYSTEM],
       g_defaults.dirs[DEFAULT_DIR_PORT], "system",
@@ -206,12 +229,30 @@ static void frontend_sf2000_get_env(int *argc, char *argv[],
    fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_LOGS],
       g_defaults.dirs[DEFAULT_DIR_PORT], "logs",
       sizeof(g_defaults.dirs[DEFAULT_DIR_LOGS]));
-   fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_REMAP],
-      g_defaults.dirs[DEFAULT_DIR_MENU_CONFIG], "remaps",
-      sizeof(g_defaults.dirs[DEFAULT_DIR_REMAP]));
    fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_MENU_CONFIG],
       g_defaults.dirs[DEFAULT_DIR_PORT], "config",
       sizeof(g_defaults.dirs[DEFAULT_DIR_MENU_CONFIG]));
+   fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_REMAP],
+      g_defaults.dirs[DEFAULT_DIR_MENU_CONFIG], "remaps",
+      sizeof(g_defaults.dirs[DEFAULT_DIR_REMAP]));
+
+	// TODO: do we really need to create these dirs here
+	for (int i = 0; i < DEFAULT_DIR_LAST; i++)
+	{
+		const char *dir_path = g_defaults.dirs[i];
+		char new_path[PATH_MAX_LENGTH];
+
+		if (string_is_empty(dir_path))
+			continue;
+
+		fill_pathname_expand_special(new_path, dir_path, sizeof(new_path));
+
+		//RARCH_LOG(LOG_TAG " g_defaults.dirs[%d]=%s\n", i, g_defaults.dirs[i]);
+
+		if (!path_is_directory(new_path))
+			path_mkdir(new_path);
+	}
+
 
 #ifndef IS_SALAMANDER
    dir_check_defaults("custom.ini");
@@ -240,9 +281,16 @@ long sysconf(int name) {
    }
 }
 
+static const struct video_driver *frontend_sf2000_get_video_driver(void)
+{
+	// TODO: is this necessary? didn't see other frontend drivers do that
+	return &video_sf2000;
+}
 
 static void frontend_sf2000_init(void *data)
 {
+	RARCH_LOG(LOG_TAG " Init\n");
+	
 #ifdef HW_RVL
    IOS_ReloadIOS(IOS_GetVersion());
    L2Enhance();
@@ -424,7 +472,7 @@ frontend_ctx_driver_t frontend_ctx_sf2000 = {
    NULL,                            /* get_name */
    NULL,                            /* get_os */
    frontend_sf2000_get_rating,          /* get_rating */
-   NULL,                            /* load_content */
+   NULL,                            /* content_loaded */
    frontend_sf2000_get_arch,            /* get_architecture */
    NULL,                            /* get_powerstate */
    frontend_sf2000_parse_drive_list,    /* parse_drive_list */
@@ -447,5 +495,5 @@ frontend_ctx_driver_t frontend_ctx_sf2000 = {
    NULL,                            /* accessibility_speak */
    NULL,                            /* set_gamemode        */
    "sf2000",                            /* ident               */
-   NULL                             /* get_video_driver    */
+   frontend_sf2000_get_video_driver /* get_video_driver    */
 };
