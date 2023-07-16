@@ -60,6 +60,7 @@
 #include "gfx/video_driver.h"
 
 // TODO: get the mounted sdcard directory at runtime
+// for example "dingux_get_base_path" function in "dingux_utils.c"
 #define SD_PREFIX "/media/mmcblk0p2"
 
 #define LOG_TAG "[SF2000][Frontend]"
@@ -433,10 +434,21 @@ static enum frontend_architecture frontend_sf2000_get_arch(void)
 
 static int frontend_sf2000_parse_drive_list(void *data, bool load_content)
 {
+	file_list_t *list = (file_list_t*)data;
+
 #ifndef IS_SALAMANDER
 #endif
 
-   return 0;
+	enum msg_hash_enums enum_idx = load_content ?
+		MENU_ENUM_LABEL_FILE_DETECT_CORE_LIST_PUSH_DIR :
+		MENU_ENUM_LABEL_FILE_BROWSER_DIRECTORY;
+
+	menu_entries_append(list, SD_PREFIX,
+		msg_hash_to_str(MENU_ENUM_LABEL_FILE_DETECT_CORE_LIST_PUSH_DIR),
+		enum_idx,
+		FILE_TYPE_DIRECTORY, 0, 0, NULL);
+
+	return 0;
 }
 
 static void frontend_sf2000_shutdown(bool unused)
