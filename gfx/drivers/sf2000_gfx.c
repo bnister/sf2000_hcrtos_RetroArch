@@ -223,8 +223,16 @@ static bool sf2000_gfx_frame(void *data, const void *frame, unsigned width,
 	if (!ctx)
 		return false;
 
-	if (msg)
-		LOGX("msg=%s\n", msg);
+	// TODO: need to display the msg on screen
+	if (msg && msg[0]) {
+		static int count = 0;
+
+		if (count == 0)
+			LOGX("msg=[%s]\n", msg);
+
+		// only log msgs approximately once per 2seconds
+		count = (count+1) % (2*60);
+	}
 
 	// TODO: better handle the case when menu is showing.
 	// for exmaple on windows i've noticed that the menu frame is partially translucent
