@@ -158,6 +158,8 @@ static void deinit_fb_device(void)
 
 static void blit(const void *frame, unsigned width, unsigned height, unsigned pitch)
 {
+	// TODO: use accellerated blit and stretch
+
 	if ((width == var.xres) && (height == var.yres) && (pitch == line_width)) {
 		memcpy(fb_base, frame, screen_size);
 	}
@@ -168,10 +170,9 @@ static void blit(const void *frame, unsigned width, unsigned height, unsigned pi
 
 		for (int y=0; y < height; y++) {
 			memcpy(fb_ptr, frame_ptr, pitch);
+			fb_ptr += line_width;
+			frame_ptr += pitch;
 		}
-
-		fb_ptr += line_width;
-		frame_ptr += pitch;
 	}
 	else {
 		LOGX("TODO: not supported yet\n");
