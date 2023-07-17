@@ -21,16 +21,20 @@
 #include <unistd.h>
 #include <errno.h>
 
+#include <sys/poll.h>
+#include <hcuapi/avsync.h>
+#include <hcuapi/snd.h>
+
 #ifdef HAVE_CONFIG_H
 #include "../../config.h"
 #endif
 
-#include "../audio_driver.h"
-#include "../../verbosity.h"
-
+#include "audio/audio_driver.h"
+#include "verbosity.h"
 #include "logx.h"
+#define LOG_TAG "[SF2000][Audio]"
 
-#define DEFAULT_DEV "/dev/audio"
+#define DEFAULT_SND_DEV "/dev/sndC0i2so"
 
 #define AUDIO_BUFFER_SIZE	128 * 1024
 #define AUDIO_CHANNELS		2
@@ -40,6 +44,8 @@ typedef struct sf2000_audio
 {
 	bool nonblock;
 	bool running;
+	int snd_fd;
+	struct pollfd pfd;
 } sf2000_audio_t;
 
 
@@ -47,18 +53,80 @@ static void *sf2000_audio_init(const char *device, unsigned rate, unsigned laten
       unsigned block_frames,
       unsigned *new_out_rate)
 {
+	int ret;
+
 	LOGX("device=%s rate=%u latency=%u block_frames=%u\n", device ? device : "Null", rate, latency, block_frames);
 
 	sf2000_audio_t *ctx = (sf2000_audio_t*)calloc(1, sizeof(sf2000_audio_t));
-
 	if (!ctx)
 		return NULL;
+
+	int snd_fd = open(DEFAULT_SND_DEV, O_WRONLY);
+	if (snd_fd == -1) {
+		LOGX("open(" DEFAULT_SND_DEV ") errno=%d\n", errno);
+		free(ctx);
+		return NULL;
+	}
+
+	struct snd_pcm_params params = {0};
+	params.access = SND_PCM_ACCESS_RW_INTERLEAVED;
+	params.format = SND_PCM_FORMAT_S16_LE;
+	params.sync_mode = AVSYNC_TYPE_FREERUN;
+	params.align = 0;
+	params.rate = rate;
+
+	int read_size = 24000;
+	snd_pcm_uframes_t poll_size = read_size;
+
+	params.channels = 2;
+	params.period_size = read_size;
+	params.periods = 8;
+	params.bitdepth = 16;
+	params.start_threshold = 2;
+	ret = ioctl(snd_fd, SND_IOCTL_HW_PARAMS, &params);
+	if (ret < 0)
+		LOGX("SND_IOCTL_HW_PARAMS error\n");
+
+	ret = ioctl(snd_fd, SND_IOCTL_AVAIL_MIN, &poll_size);
+	if (ret < 0)
+		LOGX("SND_IOCTL_HW_PARAMS error\n");
+
+	ctx->snd_fd = snd_fd;
+	ctx->pfd.fd = snd_fd;
+	ctx->pfd.events = POLLOUT | POLLWRNORM;
 
 	return ctx;
 }
 
 static ssize_t sf2000_audio_write(void *data, const void *buf, size_t size)
 {
+	sf2000_audio_t* ctx = (sf2000_audio_t*)data;
+	if (!ctx)
+		return -1;
+
+	if (!ctx->running)
+		return -1;
+
+	//LOGX("size=%u\n", size);
+
+	int count = 0;
+	int ret;
+	do {
+		struct snd_xfer xfer = {0};
+		xfer.data = buf;
+		xfer.frames = size/4;	// 4 is 2channels*16bitsample
+		//xfer.tstamp_ms = pts;
+		ret = ioctl(ctx->snd_fd, SND_IOCTL_XFER, &xfer);
+		if (ret < 0) {
+			LOGX("poll. SND_IOCTL_XFER ret=%d\n", ret);
+			poll(&ctx->pfd, 1, 100);
+		}
+		if (++count > 20) {
+			LOGX("forcefully break out of the loop\n");
+			break;
+		}
+	} while (ret < 0);
+
 	return size;
 }
 
@@ -67,6 +135,13 @@ static bool sf2000_audio_stop(void *data)
 	sf2000_audio_t* ctx = (sf2000_audio_t*)data;
 	if (!ctx)
 		return false;
+
+	LOGX("stop\n");
+
+	//ioctl(ctx->snd_fd, SND_IOCTL_PAUSE, 0);
+	int ret = ioctl(ctx->snd_fd, SND_IOCTL_DROP, 0);
+	if (ret < 0)
+		LOGX("SND_IOCTL_DROP ret=%d\n", ret);
 
 	ctx->running = false;
 	return true;
@@ -77,6 +152,13 @@ static bool sf2000_audio_start(void *data, bool is_shutdown)
 	sf2000_audio_t* ctx = (sf2000_audio_t*)data;
 	if (!ctx)
 		return false;
+
+	LOGX("start\n");
+
+	//ioctl(ctx->snd_fd, SND_IOCTL_RESUME, 0);
+	int ret = ioctl(ctx->snd_fd, SND_IOCTL_START, 0);
+	if (ret < 0)
+		LOGX("SND_IOCTL_START ret=%d\n", ret);
 
 	ctx->running = true;
 	return true;
@@ -106,7 +188,13 @@ static void sf2000_audio_free(void *data)
 	if (!ctx)
 		return;
 
+	LOGX("free\n");
+
+	ioctl(ctx->snd_fd, SND_IOCTL_HW_FREE, 0);
+
+	close(ctx->snd_fd);
 	free(ctx);
+	ctx = NULL;
 }
 
 static size_t sf2000_audio_buffer_size(void *data)
