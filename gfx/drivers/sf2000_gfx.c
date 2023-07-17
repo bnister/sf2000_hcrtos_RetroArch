@@ -226,10 +226,19 @@ static bool sf2000_gfx_frame(void *data, const void *frame, unsigned width,
 	if (msg)
 		LOGX("msg=%s\n", msg);
 
+	// TODO: better handle the case when menu is showing.
+	// for exmaple on windows i've noticed that the menu frame is partially translucent
+	// while the game frame still showing underneath.
+	bool menu_is_alive = video_info->menu_is_alive;
+	if (menu_is_alive) {
+		// TODO: what does it do? draws the menu frame?
+		menu_driver_frame(menu_is_alive, video_info);
+	}
+	else
+		// only blit game frame when menu is not active
+		blit(frame, width, height, width*2);
+
 	//LOGX("width=%d height=%d pitch=%d\n", width, height, pitch);
-
-	blit(frame, width, height, width*2);
-
 	return true;
 }
 
