@@ -3,6 +3,10 @@
 
 #include <stdio.h>
 
-#define LOGX(format, ...) printf("%s:%d %s - " format, __FILE__, __LINE__, __func__, ##__VA_ARGS__)
+#ifdef NO_LOGX
+#	define LOGX(format, ...) do { } while (0)
+#else
+#	define LOGX(format, ...) printf("%s:%d %s - " format, __FILE__, __LINE__, __func__, ##__VA_ARGS__)
+#endif
 
 #endif
