@@ -1884,9 +1884,10 @@ static bool firmware_update_status(
       firmware_info.directory.system = s;
    }
 
+	// TODO: why core_info->path is null?
    RARCH_LOG("[Content]: Updating firmware status for: \"%s\" on \"%s\".\n",
-         core_info->path,
-         firmware_info.directory.system);
+         core_info->path ? core_info->path : "Null",
+         firmware_info.directory.system ? firmware_info.directory.system : "Null");
 
    core_info_list_update_missing_firmware(&firmware_info,
          &set_missing_firmware);
