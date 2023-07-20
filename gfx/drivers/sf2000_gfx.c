@@ -50,6 +50,7 @@
 #include <inttypes.h>
 #include "logx.h"
 
+#include <kernel/io.h>
 #include <kernel/fb.h>
 #include <hcuapi/fb.h>
 #include <hcge/ge_api.h>
@@ -158,25 +159,43 @@ static void deinit_fb_device(void)
 
 static void blit(const void *frame, unsigned width, unsigned height, unsigned pitch)
 {
-	// TODO: use accellerated blit and stretch
+	// TODO: do i need a special case for when frame is already full screen and use possibly a bit faster 
+	// regular hcge_blit, or just let hcge_stretch_blit handle it internaly?
 
-	if ((width == var.xres) && (height == var.yres) && (pitch == line_width)) {
-		memcpy(fb_base, frame, screen_size);
-	}
-	else if ((width <= var.xres) && (height <= var.xres) && (pitch == width*2)) {
+	// TODO: implement other stretching options to preserve the original image ratio
+	
+	hcge_state *state = &ctx->state;
+	HCGERectangle srect = {0, 0, width, height};
+	HCGERectangle drect = {0, 0, var.xres, var.yres};
 
-		uint8_t *fb_ptr = fb_base;
-		const uint8_t *frame_ptr = frame;
+    state->render_options = HCGE_DSRO_NONE;
+    state->drawingflags = HCGE_DSDRAW_NOFX;
+    state->blittingflags = HCGE_DSBLIT_NOFX;
 
-		for (int y=0; y < height; y++) {
-			memcpy(fb_ptr, frame_ptr, pitch);
-			fb_ptr += line_width;
-			frame_ptr += pitch;
-		}
+    state->src_blend = HCGE_DSBF_SRCALPHA;
+    state->dst_blend = HCGE_DSBF_ZERO;
+
+    state->destination.config.size.w = var.xres;
+    state->destination.config.size.h = var.yres;
+    state->destination.config.format = HCGE_DSPF_RGB16;
+    state->dst.phys = PHY_ADDR(fb_base);
+    state->dst.pitch = line_width;
+
+    state->source.config.size.w = width;
+    state->source.config.size.h = height;
+    state->source.config.format = HCGE_DSPF_RGB16;
+    state->src.phys = PHY_ADDR(frame);
+    state->src.pitch = pitch;
+
+    state->accel = HCGE_DFXL_STRETCHBLIT;
+    hcge_set_state(ctx, &ctx->state, state->accel);
+	if (!hcge_stretch_blit(ctx, &srect, &drect)) {
+		static int count = 0;
+		if (count == 0)
+			LOGX("hcge_stretch_blit failed\n");
+		count = (count + 1) % 60;
 	}
-	else {
-		LOGX("TODO: not supported yet\n");
-	}
+    hcge_engine_sync(ctx);
 }
 
 static void *sf2000_gfx_init(const video_info_t *video,
