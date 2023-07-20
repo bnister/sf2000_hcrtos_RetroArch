@@ -1385,7 +1385,8 @@ static bool rgui_set_pixel_format_function(void)
       argb32_to_pixel_platform_format = argb32_to_bgra4444;
    else if (string_is_equal(driver_ident, "sdl_dingux") ||    /* DINGUX SDL */
             string_is_equal(driver_ident, "sdl_rs90") ||
-            string_is_equal(driver_ident, "xvideo"))
+            string_is_equal(driver_ident, "xvideo") ||
+			string_is_equal(driver_ident, "sf2000"))
    {
       argb32_to_pixel_platform_format = argb32_to_rgb565;
       return false; /* Transparency not supported */
