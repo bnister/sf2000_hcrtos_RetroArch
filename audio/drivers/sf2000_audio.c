@@ -72,17 +72,17 @@ static void *sf2000_audio_init(const char *device, unsigned rate, unsigned laten
 	params.access = SND_PCM_ACCESS_RW_INTERLEAVED;
 	params.format = SND_PCM_FORMAT_S16_LE;
 	params.sync_mode = AVSYNC_TYPE_FREERUN;
-	params.align = 0;
+	params.align = SND_PCM_ALIGN_LEFT;
 	params.rate = rate;
 
-	int read_size = 24000;
+	int read_size = 1536;
 	snd_pcm_uframes_t poll_size = read_size;
 
 	params.channels = 2;
 	params.period_size = read_size;
-	params.periods = 8;
+	params.periods = 4;
 	params.bitdepth = 16;
-	params.start_threshold = 2;
+	params.start_threshold = 0;
 	ret = ioctl(snd_fd, SND_IOCTL_HW_PARAMS, &params);
 	if (ret < 0)
 		LOGX("SND_IOCTL_HW_PARAMS error\n");
@@ -118,7 +118,7 @@ static ssize_t sf2000_audio_write(void *data, const void *buf, size_t size)
 		//xfer.tstamp_ms = pts;
 		ret = ioctl(ctx->snd_fd, SND_IOCTL_XFER, &xfer);
 		if (ret < 0) {
-			LOGX("poll. SND_IOCTL_XFER ret=%d\n", ret);
+			//LOGX("poll. SND_IOCTL_XFER ret=%d\n", ret);
 			poll(&ctx->pfd, 1, 100);
 		}
 		if (++count > 20) {
