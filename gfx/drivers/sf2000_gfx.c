@@ -54,7 +54,7 @@
 #include <kernel/fb.h>
 #include <hcuapi/fb.h>
 #include <hcge/ge_api.h>
-
+#include <cpu_func.h>
 
 #define SCREEN_WIDTH  320
 #define SCREEN_HEIGHT 240
@@ -187,9 +187,13 @@ static void blit(const void *frame, unsigned width, unsigned height, unsigned pi
     state->src.phys = PHY_ADDR(frame);
     state->src.pitch = pitch;
 
+	// NOTE: this fixes the artifacts on the left side of the screen
+	cache_flush(frame, pitch * height);
+
     state->accel = HCGE_DFXL_STRETCHBLIT;
     hcge_set_state(ctx, &ctx->state, state->accel);
 	if (!hcge_stretch_blit(ctx, &srect, &drect)) {
+		// TODO:
 		static int count = 0;
 		if (count == 0)
 			LOGX("hcge_stretch_blit failed\n");
