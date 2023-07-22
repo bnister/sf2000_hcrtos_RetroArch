@@ -22,6 +22,7 @@
 
 #include "logx.h"
 #define LOG_TAG "[SF2000][Joypad]"
+//#define LOG_BTN_PRESS
 
 #include <hcuapi/gpio.h>
 #include <hcuapi/pinpad.h>
@@ -31,12 +32,13 @@
 #define KEY_SHIFTER_PL1_PIN PINPAD_L23 // SF2000
 #define KEY_SHIFTER_PL2_PIN PINPAD_L26 // currently unimplemented
 
-
+// TODO: the X60 handheld have BTN_L and BTN_R swapped compared to SF2000
+// need to conditionaly adjust the enum based on if we compile for X60 or SF2000
 typedef enum {
-	SF2000_BTN_L = 0,
+	SF2000_BTN_R = 0,
 	SF2000_BTN_Y,
 	SF2000_BTN_X,
-	SF2000_BTN_R,
+	SF2000_BTN_L,
 	SF2000_BTN_A,
 	SF2000_BTN_B,
 	SF2000_BTN_SELECT,
@@ -132,9 +134,9 @@ static int16_t sf2000_joypad_axis(unsigned port, uint32_t joyaxis)
 
 static void sf2000_joypad_poll(void)
 {
-#if 0
+#ifdef LOG_BTN_PRESS
 	static const char * const key_names[] = {
-		"L", "Y", "X", "R", "A", "B", "Select", "Start", "Up", "Down", "Left", "Right"
+		"R", "Y", "X", "L", "A", "B", "Select", "Start", "Up", "Down", "Left", "Right"
 	};
 
 	int prev[ARRAY_SIZE(btn_state)];
@@ -168,7 +170,7 @@ static void sf2000_joypad_poll(void)
 		gpio_set_output(KEY_SHIFTER_CLK_PIN, 1);
 	}
 
-#if 0
+#ifdef LOG_BTN_PRESS
 	for (int i = 0; i < ARRAY_SIZE(btn_state); i++) if (prev[i] != btn_state[i]) {
 		RARCH_LOG(LOG_TAG "poll = %s(%d) %s\n", key_names[i], i, btn_state[i] ? "pressed" : "released");
 	}
