@@ -36,7 +36,7 @@ jobs:
         shell: powershell
         run: echo "::set-output name=sha8::$('${{github.sha}}'.Substring(0,8))"
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: retroarch-UWP-${{matrix.configuration}}-${{matrix.platform}}-${{ steps.slug.outputs.sha8 }}
           path: pkg/msvc-uwp/AppPackages/RetroArch-msvcUWP
@@ -65,7 +65,7 @@ jobs:
         shell: powershell
         run: echo "::set-output name=sha8::$('${{github.sha}}'.Substring(0,8))"
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: retroarch-msvc2019-${{matrix.configuration}}-${{matrix.platform}}-${{ steps.slug.outputs.sha8 }}
           path: pkg/msvc/${{matrix.platform}}/${{matrix.configuration}}/RetroArch-msvc2019.exe
